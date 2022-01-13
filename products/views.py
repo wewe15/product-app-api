@@ -8,8 +8,13 @@ class ProductListView(generics.ListCreateAPIView):
     serializer_class = ProductSerializer
 
     def get_queryset(self):
-        user = self.request.user
-        return Product.objects.filter(seller=user).order_by("price")
+        queryset = Product.objects.all().order_by('price')
+        sellers = self.request.query_params.get('seller')
+
+        if sellers:
+            queryset = queryset.filter(seller_id=sellers).order_by('price')
+
+        return queryset
 
 
 class ProductDetailView(generics.RetrieveUpdateDestroyAPIView):
