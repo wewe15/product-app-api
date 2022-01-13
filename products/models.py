@@ -1,5 +1,6 @@
 import uuid
 from django.db import models
+from config import settings
 
 
 class Product(models.Model):
@@ -8,9 +9,12 @@ class Product(models.Model):
         default=uuid.uuid4,
         editable=False
     )
-    seller = models.CharField(max_length=50)
+    seller = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE
+    )
     name = models.CharField(max_length=50)
     price = models.DecimalField(max_digits=6, decimal_places=2)
-    
+
     def __str__(self):
         return self.name
