@@ -68,5 +68,24 @@ class PrivateproductApiTest(TestCase):
 
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
         self.assertEqual(res.data['name'], 'cheescake')
-        self.assertEqual(res.data['seller'], self.user.id)
         self.assertEqual(res.data['price'], '5.00')
+
+    def test_filter_product_by_user(self):
+        testuser1 = get_user_model().objects.create_user(
+            username='testuser1',
+            password='testpass123',
+        )
+        testuser1.save()
+
+        test_product = Product.objects.create(
+            seller=testuser1,
+            name='title',
+            price=5.00,
+        )
+        test_product.save()
+
+        res = self.client.get(PRODUCTS_URL, {'seller': f'{testuser1.id}'})
+        no_res = self.client.get(PRODUCTS_URL, {'seller': f'{self.user.id}'})
+        serializer = ProductSerializer(test_product)
+        self.assertIn(serializer.data, res.data)
+        self.assertNotIn(serializer.data, no_res.data)
